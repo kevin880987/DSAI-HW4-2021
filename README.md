@@ -9,4 +9,4 @@ Then run `python xgboost_model.py`, and `submission.csv` will be saved in the ro
 
 
 
-[Google doc report link](https://docs.google.com/document/d/1hkh-fauw2Un097nzzFQIOhN7blrB9jlRYbpEDMKpk6M/edit?usp=sharing)
+The details are in [Google Doc report](https://docs.google.com/document/d/1hkh-fauw2Un097nzzFQIOhN7blrB9jlRYbpEDMKpk6M/edit?usp=sharing).
