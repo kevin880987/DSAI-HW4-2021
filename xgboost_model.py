@@ -20,9 +20,6 @@ import os
 root = os.getcwd() + os.sep + 'data' + os.sep
 image_fp = os.getcwd() + os.sep + 'image' + os.sep
 submission_fp = os.getcwd() + os.sep
-df = pd.read_pickle(root + 'Finaldata.pkl')
-test_df = pd.read_pickle(root + 'Testdata.pkl')
-
 
 def reduce_memory(df):
     
@@ -70,97 +67,101 @@ def reduce_memory(df):
     
     return df
 
-df = reduce_memory(df)
-test_df = reduce_memory(test_df)
-
-df['order_diff'] = df.order_number - df.last_ordered_in
-test_df['order_diff'] = test_df.order_number - test_df.last_ordered_in
-
-label = 'reordered'
-x_cols = df.columns.drop('reordered')
-X = df[x_cols]
-y = df[label]
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, stratify = y, test_size = 0.25)
-print(X_train.shape, y_train.shape)
-print(X_test.shape, y_test.shape)
-
-D_train = xgb.DMatrix(X_train, label=y_train)
-D_test = xgb.DMatrix(X_test, label=y_test)
-
-xgb_params = {
-    "objective"        :"reg:logistic",
-    "eval_metric"      :"logloss",
-    "eta"              :0.1,
-    "max_depth"        :6,
-    "min_child_weight" :10,
-    "gamma"            :0.70,
-    "subsample"        :0.76,
-    "colsample_bytree" :0.95,
-    "alpha"            :2e-05,
-    "scale_pos_weight" :10,
-    "lambda"           :10
-}
-watchlist= [(D_train, "train")]
 try:
     model = xgb.Booster()
     model.load_model("model.txt")
     feature_names = pd.read_csv(root+'feature_names.csv').values.flatten()
+    
 except:
+    df = pd.read_pickle(root + 'Finaldata.pkl')
+    df = reduce_memory(df)
+    
+    df['order_diff'] = df.order_number - df.last_ordered_in
+    
+    label = 'reordered'
+    x_cols = df.columns.drop('reordered')
+    X = df[x_cols]
+    y = df[label]
+    
+    X_train, X_test, y_train, y_test = train_test_split(X, y, stratify = y, test_size = 0.25)
+    print(X_train.shape, y_train.shape)
+    print(X_test.shape, y_test.shape)
+    
+    D_train = xgb.DMatrix(X_train, label=y_train)
+    D_test = xgb.DMatrix(X_test, label=y_test)
+    
+    xgb_params = {
+        "objective"        :"reg:logistic",
+        "eval_metric"      :"logloss",
+        "eta"              :0.1,
+        "max_depth"        :6,
+        "min_child_weight" :10,
+        "gamma"            :0.70,
+        "subsample"        :0.76,
+        "colsample_bytree" :0.95,
+        "alpha"            :2e-05,
+        "scale_pos_weight" :10,
+        "lambda"           :10
+    }
+    watchlist= [(D_train, "train")]
     model = xgb.train(params=xgb_params, dtrain=D_train, num_boost_round = 80, evals = watchlist, verbose_eval = 10)
     model.save_model("model.txt")
     pd.DataFrame(model.feature_names).to_csv(root+'feature_names.csv', index=False)
 
 
-probability = model.predict(D_test)
-predictions = [1 if i > 0.5 else 0 for i in probability]
-print ("\n Classification report : \n",classification_report(y_test, predictions))
-print ("Accuracy   Score : ",accuracy_score(y_test, predictions))
-
-#confusion matrix
-conf_matrix = confusion_matrix(y_test,predictions)
-plt.figure(figsize=(12,6))
-plt.subplot(121)
-sns.heatmap(conf_matrix, fmt = "d",annot=True, cmap='Blues')
-b, t = plt.ylim()
-plt.ylim(b + 0.5, t - 0.5)
-plt.title('Confuion Matrix')
-plt.ylabel('True Values')
-plt.xlabel('Predicted Values')
-
-#f1-score
-f1 = f1_score(y_test, predictions)
-print("F1 Score: ", f1)
-
-#roc_auc_score
-model_roc_auc = roc_auc_score(y_test,probability) 
-print ("Area under curve : ",model_roc_auc,"\n")
-fpr,tpr,thresholds = roc_curve(y_test,probability)
-gmeans = np.sqrt(tpr * (1-fpr))
-ix = np.argmax(gmeans)
-threshold = np.round(thresholds[ix],3)
-
-plt.subplot(122)
-plt.plot(fpr, tpr, color='darkorange', lw=1, label = "Auc : %.3f" %model_roc_auc)
-plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-plt.scatter(fpr[ix], tpr[ix], marker='o', color='black', label='Best Threshold:' + str(threshold))
-plt.xlim([0.0, 1.0])
-plt.ylim([0.0, 1.05])
-plt.xlabel('False Positive Rate')
-plt.ylabel('True Positive Rate')
-plt.title('Receiver operating characteristic')
-plt.legend(loc="lower right")
-plt.gcf().tight_layout()
-plt.gcf().savefig(image_fp+'XGBoost Scores.png', dpi=144, transparent=True)
-plt.show()
-
-
-fig, ax = plt.subplots(figsize = (10,15))
-xgb.plot_importance(model, ax = ax)
-ax.set_title('Feature Importance')
-plt.gcf().tight_layout()
-fig.savefig(image_fp+'XGBoost Feature Importance Plot.png', dpi=144, transparent=True)
-
+    probability = model.predict(D_test)
+    predictions = [1 if i > 0.5 else 0 for i in probability]
+    print ("\n Classification report : \n",classification_report(y_test, predictions))
+    print ("Accuracy   Score : ",accuracy_score(y_test, predictions))
+    
+    
+    #confusion matrix
+    conf_matrix = confusion_matrix(y_test,predictions)
+    plt.figure(figsize=(12,6))
+    plt.subplot(121)
+    sns.heatmap(conf_matrix, fmt = "d",annot=True, cmap='Blues')
+    b, t = plt.ylim()
+    plt.ylim(b + 0.5, t - 0.5)
+    plt.title('Confuion Matrix')
+    plt.ylabel('True Values')
+    plt.xlabel('Predicted Values')
+    
+    #f1-score
+    f1 = f1_score(y_test, predictions)
+    print("F1 Score: ", f1)
+    
+    #roc_auc_score
+    model_roc_auc = roc_auc_score(y_test,probability) 
+    print ("Area under curve : ",model_roc_auc,"\n")
+    fpr,tpr,thresholds = roc_curve(y_test,probability)
+    gmeans = np.sqrt(tpr * (1-fpr))
+    ix = np.argmax(gmeans)
+    threshold = np.round(thresholds[ix],3)
+    
+    plt.subplot(122)
+    plt.plot(fpr, tpr, color='darkorange', lw=1, label = "Auc : %.3f" %model_roc_auc)
+    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    plt.scatter(fpr[ix], tpr[ix], marker='o', color='black', label='Best Threshold:' + str(threshold))
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver operating characteristic')
+    plt.legend(loc="lower right")
+    plt.gcf().tight_layout()
+    plt.gcf().savefig(image_fp+'XGBoost Scores.png', dpi=144, transparent=True)
+    plt.show()
+    
+    
+    fig, ax = plt.subplots(figsize = (10,15))
+    xgb.plot_importance(model, ax = ax)
+    ax.set_title('Feature Importance')
+    plt.gcf().tight_layout()
+    fig.savefig(image_fp+'XGBoost Feature Importance Plot.png', dpi=144, transparent=True)
+    
+test_df = pd.read_pickle(root + 'Testdata.pkl')
+test_df = reduce_memory(test_df)
+test_df['order_diff'] = test_df.order_number - test_df.last_ordered_in
 
 #### Save submission
 D_pred = xgb.DMatrix(test_df)
