@@ -157,6 +157,7 @@ plt.show()
 
 fig, ax = plt.subplots(figsize = (10,15))
 xgb.plot_importance(model, ax = ax)
+ax.set_title('Feature Importance')
 plt.gcf().tight_layout()
 fig.savefig(image_fp+'XGBoost Feature Importance Plot.png', dpi=144, transparent=True)
 
