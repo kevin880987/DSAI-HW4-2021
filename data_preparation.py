@@ -44,9 +44,9 @@ product_features = pd.read_pickle(root + 'product_features.pkl')
 user_features = pd.read_pickle(root + 'user_features.pkl')
 user_product_features = pd.read_pickle(root + 'user_product_features.pkl')
 products = pd.read_csv(root +'products.csv')
-aisles = pd.read_csv(root + 'aisles.csv')
-departments = pd.read_csv(root + 'departments.csv')
-sample_submission = pd.read_csv(root + 'sample_submission.csv')
+# aisles = pd.read_csv(root + 'aisles.csv')
+# departments = pd.read_csv(root + 'departments.csv')
+# sample_submission = pd.read_csv(root + 'sample_submission.csv')
 
 #### Merging train order data with orders
 train_orders = orders.merge(order_products_train, on = 'order_id', how = 'inner')
@@ -89,6 +89,9 @@ df = df[df.reordered != 0]
 df.reordered.fillna(0, inplace = True)
 
 #### Merging product and user features
+cluster_features = pd.read_pickle(root + 'cluster.pkl').reset_index()
+user_features = user_features.merge(cluster_features, on = 'user_id', how = 'left')
+
 df = df.merge(product_features, on = 'product_id', how = 'left')
 df = df.merge(user_features, on = 'user_id', how = 'left')
 # df.isnull().sum().sort_values(ascending = False)

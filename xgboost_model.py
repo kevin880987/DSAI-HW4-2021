@@ -21,6 +21,7 @@ root = os.getcwd() + os.sep + 'data' + os.sep
 image_fp = os.getcwd() + os.sep + 'image' + os.sep
 submission_fp = os.getcwd() + os.sep
 
+
 def reduce_memory(df):
     
     """
@@ -90,6 +91,9 @@ except:
     D_train = xgb.DMatrix(X_train, label=y_train)
     D_test = xgb.DMatrix(X_test, label=y_test)
     
+    from datetime import datetime
+    starttime = datetime.now()
+    print('\tstart time:', starttime)
     xgb_params = {
         "objective"        :"reg:logistic",
         "eval_metric"      :"logloss",
@@ -107,7 +111,9 @@ except:
     model = xgb.train(params=xgb_params, dtrain=D_train, num_boost_round = 80, evals = watchlist, verbose_eval = 10)
     model.save_model("model.txt")
     pd.DataFrame(model.feature_names).to_csv(root+'feature_names.csv', index=False)
-
+    endtime = datetime.now()
+    print('\tend time:', endtime)
+    print('\ttime consumption:', endtime-starttime)
 
     probability = model.predict(D_test)
     predictions = [1 if i > 0.5 else 0 for i in probability]
@@ -132,7 +138,7 @@ except:
     
     #roc_auc_score
     model_roc_auc = roc_auc_score(y_test,probability) 
-    print ("Area under curve : ",model_roc_auc,"\n")
+    print ("Area Under Curve : ", model_roc_auc, "\n")
     fpr,tpr,thresholds = roc_curve(y_test,probability)
     gmeans = np.sqrt(tpr * (1-fpr))
     ix = np.argmax(gmeans)
@@ -158,6 +164,8 @@ except:
     ax.set_title('Feature Importance')
     plt.gcf().tight_layout()
     fig.savefig(image_fp+'XGBoost Feature Importance Plot.png', dpi=144, transparent=True)
+    
+    
     
 test_df = pd.read_pickle(root + 'Testdata.pkl')
 test_df = reduce_memory(test_df)
