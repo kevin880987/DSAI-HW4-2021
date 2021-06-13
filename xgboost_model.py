@@ -181,6 +181,7 @@ submission = submission.groupby(['order_id'])['product_id'].aggregate(lambda x: 
 submission = pd.DataFrame(index=test_df.index.get_level_values('order_id').unique()).sort_index()\
     .merge(submission, how='left', left_index=True, right_index=True)
 submission.fillna('None', inplace=True)
+submission.columns = ['products']
 submission.to_csv(submission_fp+'submission.csv')
 
 
