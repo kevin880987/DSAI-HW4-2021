@@ -12,7 +12,7 @@ The details are in [Google Doc report](https://docs.google.com/document/d/1hkh-f
 ### Project Organization
 ```
 .
-├── data/                                       : Store datasets
+├── data/                                       : Stores datasets
 ├── image/                                      : Contains all plots 
 ├── data_description.py                         : Initial analysis to understand data
 ├── market_basket_analysis.py                   : Market Basket Analysis to find products association
