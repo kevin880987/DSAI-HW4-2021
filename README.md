@@ -17,6 +17,7 @@ The details are in [Google Doc report](https://docs.google.com/document/d/1hkh-f
 ├── data_description.py                         : Initial analysis to understand data
 ├── market_basket_analysis.py                   : Market Basket Analysis to find products association
 ├── feature_extraction.py                       : Feature engineering and extraction for a ML model
+├── customers_segmentation.py                   : Clustering for customers
 ├── data_preparation.py                         : Data preparation for modeling
 ├── xgboost_model.py                            : XGBoost model for product reorder prediction
 ├── model.txt                                   : Save trained model
