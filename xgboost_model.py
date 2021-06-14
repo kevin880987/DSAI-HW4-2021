@@ -117,8 +117,8 @@ except:
 
     probability = model.predict(D_test)
     predictions = [1 if i > 0.5 else 0 for i in probability]
-    print ("\n Classification report : \n",classification_report(y_test, predictions))
-    print ("Accuracy   Score : ",accuracy_score(y_test, predictions))
+    print ("\nClassification report:\n",classification_report(y_test, predictions))
+    print ("Accuracy Score:\t",accuracy_score(y_test, predictions))
     
     
     #confusion matrix
@@ -134,11 +134,11 @@ except:
     
     #f1-score
     f1 = f1_score(y_test, predictions)
-    print("F1 Score: ", f1)
+    print("F1 Score:\t\t", f1)
     
     #roc_auc_score
     model_roc_auc = roc_auc_score(y_test,probability) 
-    print ("Area Under Curve : ", model_roc_auc, "\n")
+    print ("Area Under Curve:\t", model_roc_auc, "\n")
     fpr,tpr,thresholds = roc_curve(y_test,probability)
     gmeans = np.sqrt(tpr * (1-fpr))
     ix = np.argmax(gmeans)
