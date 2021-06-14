@@ -191,7 +191,7 @@ user_feats = prior_df.groupby('user_id').agg(
     total_products_by_user=('product_id', 'count'), 
     total_unique_product_by_user=('product_id', lambda x: x.nunique()), 
     total_reorders_by_user=('reordered', 'sum'), 
-    reorder_propotion_by_user=('reordered', 'mean')
+    reorder_proportion_by_user=('reordered', 'mean')
     )
 user_feats.columns = user_feats.columns.droplevel(0)
 user_feats.reset_index(inplace = True)
